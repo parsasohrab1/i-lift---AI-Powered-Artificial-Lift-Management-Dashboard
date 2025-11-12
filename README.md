@@ -1,608 +1,349 @@
+# IntelliLift AI Dashboard
 
-# **Software Requirements Specification (SRS)**
-## **AI-Powered Artificial Lift Management Dashboard**
+**AI-Powered Artificial Lift Management Dashboard**
 
-**Document Version:** 2.0
-**Date:** December 29, 2024
-**Author:** AI Systems Architect
-**Status:** Final
+یک سیستم جامع برای مانیتورینگ، تحلیل و بهینه‌سازی سیستم‌های Artificial Lift در صنعت نفت و گاز با استفاده از هوش مصنوعی و یادگیری ماشین.
+
+## 📋 فهرست مطالب
+
+- [ویژگی‌ها](#ویژگی‌ها)
+- [معماری سیستم](#معماری-سیستم)
+- [نصب و راه‌اندازی](#نصب-و-راه‌اندازی)
+- [ساختار پروژه](#ساختار-پروژه)
+- [مستندات](#مستندات)
+- [توسعه](#توسعه)
+- [تست](#تست)
+- [استقرار](#استقرار)
+- [مشارکت](#مشارکت)
+
+## ✨ ویژگی‌ها
+
+### 🔄 Real-time Data Processing
+- **Data Ingestion**: پشتیبانی از MQTT, OPC-UA, REST API
+- **Stream Processing**: پردازش real-time با Apache Kafka
+- **Data Validation**: اعتبارسنجی و پاکسازی خودکار داده‌ها
+- **Feature Engineering**: استخراج ویژگی‌های خودکار
+
+### 🤖 Machine Learning & AI
+- **Anomaly Detection**: تشخیص ناهنجاری‌ها با Isolation Forest
+- **Predictive Maintenance**: پیش‌بینی خرابی تجهیزات
+- **Failure Prediction**: پیش‌بینی زمان خرابی
+- **Optimization Recommendations**: توصیه‌های بهینه‌سازی
+
+### 📊 Analytics & Visualization
+- **Real-time Dashboard**: داشبورد real-time با latency کمتر از 3 ثانیه
+- **Historical Analysis**: تحلیل روندهای تاریخی
+- **Geographic Mapping**: نقشه‌برداری جغرافیایی چاه‌ها
+- **Custom KPIs**: ویجت‌های KPI قابل تنظیم
+
+### 🔔 Alerting & Notifications
+- **Multi-channel Alerts**: SMS, Email, In-app notifications
+- **Alert Rules Engine**: موتور قوانین قابل تنظیم
+- **Severity Levels**: سطوح مختلف severity
+- **Alert Resolution**: ردیابی و حل alerts
+
+### 🔒 Security & Compliance
+- **Authentication**: JWT-based authentication
+- **RBAC**: Role-Based Access Control
+- **Audit Logging**: ثبت تمام فعالیت‌ها
+- **Data Encryption**: رمزنگاری داده‌های حساس
+- **Compliance Reports**: گزارش‌های compliance
+
+### 📈 Monitoring & Observability
+- **Prometheus Metrics**: جمع‌آوری metrics
+- **Health Checks**: بررسی سلامت سرویس‌ها
+- **System Monitoring**: مانیتورینگ منابع سیستم
+- **Distributed Tracing**: ردیابی درخواست‌ها
+
+## 🏗️ معماری سیستم
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    Data Sources Layer                       │
+│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐   │
+│  │  MQTT   │  │ OPC-UA   │  │   REST   │  │  Files   │   │
+│  └──────────┘  └──────────┘  └──────────┘  └──────────┘   │
+└──────────────────────┬──────────────────────────────────────┘
+                       │
+┌──────────────────────▼──────────────────────────────────────┐
+│                  Ingestion Layer                             │
+│  ┌──────────┐  ┌──────────┐  ┌──────────┐                 │
+│  │  Kafka   │  │ Validator │  │ Enricher │                 │
+│  └──────────┘  └──────────┘  └──────────┘                 │
+└──────────────────────┬──────────────────────────────────────┘
+                       │
+┌──────────────────────▼──────────────────────────────────────┐
+│                 Processing Layer                             │
+│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐   │
+│  │  Stream  │  │ Feature  │  │   ML     │  │ Analytics│   │
+│  │ Processor│  │ Engineer │  │ Pipeline │  │  Engine  │   │
+│  └──────────┘  └──────────┘  └──────────┘  └──────────┘   │
+└──────────────────────┬──────────────────────────────────────┘
+                       │
+┌──────────────────────▼──────────────────────────────────────┐
+│                   Storage Layer                               │
+│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐   │
+│  │TimescaleDB│ │  Redis   │  │  Kafka   │  │   S3     │   │
+│  └──────────┘  └──────────┘  └──────────┘  └──────────┘   │
+└──────────────────────┬──────────────────────────────────────┘
+                       │
+┌──────────────────────▼──────────────────────────────────────┐
+│                Application Layer                             │
+│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐   │
+│  │  FastAPI │  │  Next.js  │  │  Alert   │  │  Report  │   │
+│  │  Backend │  │ Frontend  │  │  System  │  │ Generator│   │
+│  └──────────┘  └──────────┘  └──────────┘  └──────────┘   │
+└─────────────────────────────────────────────────────────────┘
+```
+
+## 🚀 نصب و راه‌اندازی
+
+### پیش‌نیازها
+
+- **Node.js** 20+
+- **Python** 3.11+
+- **Docker** & Docker Compose
+- **PostgreSQL** 15+ (با TimescaleDB extension)
+- **Redis** 7+
+- **Kafka** (اختیاری برای production)
+
+### نصب سریع
+
+```bash
+# Clone repository
+git clone <repository-url>
+cd i-lift---AI-Powered-Artificial-Lift-Management-Dashboard
+
+# Install all dependencies
+npm run install:all
+
+# Start with Docker
+docker-compose up -d
+
+# Or start manually
+npm run dev
+```
+
+برای راهنمای کامل نصب، به [README_SETUP.md](README_SETUP.md) مراجعه کنید.
+
+## 📁 ساختار پروژه
+
+```
+i-lift---AI-Powered-Artificial-Lift-Management-Dashboard/
+├── frontend/                 # Next.js Frontend Application
+│   ├── src/
+│   │   ├── app/             # Next.js App Router pages
+│   │   ├── components/      # React components
+│   │   ├── hooks/           # Custom React hooks
+│   │   ├── lib/             # Utilities and helpers
+│   │   └── types/           # TypeScript type definitions
+│   └── package.json
+│
+├── backend/                  # FastAPI Backend Application
+│   ├── app/
+│   │   ├── api/             # API routes and endpoints
+│   │   ├── core/            # Core configuration
+│   │   ├── models/          # SQLAlchemy database models
+│   │   ├── schemas/         # Pydantic schemas
+│   │   ├── services/        # Business logic services
+│   │   └── utils/           # Utility functions
+│   ├── tests/               # Test suite
+│   ├── database/            # Database migrations
+│   └── requirements.txt
+│
+├── data-processing/          # Data Processing Services
+│   ├── synthetic_data_generator.py
+│   └── requirements.txt
+│
+├── ml-services/             # ML/AI Services
+│   ├── anomaly_detection.py
+│   ├── predictive_maintenance.py
+│   ├── model_server.py
+│   └── requirements.txt
+│
+├── monitoring/              # Monitoring Configuration
+│   └── prometheus.yml
+│
+├── docker-compose.yml       # Docker Compose configuration
+├── Makefile                 # Make commands
+└── package.json            # Root package.json
+```
+
+## 📚 مستندات
+
+### مستندات اصلی
+
+- **[Setup Guide](README_SETUP.md)** - راهنمای نصب و راه‌اندازی
+- **[Architecture Documentation](docs/ARCHITECTURE.md)** - معماری سیستم
+- **[API Documentation](docs/API.md)** - مستندات کامل API
+- **[Deployment Guide](docs/DEPLOYMENT.md)** - راهنمای استقرار
+- **[User Guide](docs/USER_GUIDE.md)** - راهنمای کاربر
+
+### مستندات Backend
+
+- **[Authentication](backend/README_AUTH.md)** - سیستم احراز هویت
+- **[Data Ingestion](backend/README_INGESTION.md)** - دریافت داده
+- **[Data Processing](backend/README_PROCESSING.md)** - پردازش داده
+- **[Alerts & Notifications](backend/README_ALERTS_NOTIFICATIONS.md)** - سیستم هشدار
+- **[Security & Compliance](backend/README_SECURITY_COMPLIANCE.md)** - امنیت و compliance
+- **[Monitoring](backend/README_MONITORING.md)** - مانیتورینگ
+- **[Testing](backend/README_TESTING.md)** - تست‌ها
+
+### مستندات API
+
+- **[Data API](backend/README_API_DATA.md)** - API داده‌ها
+- **[Analytics API](backend/README_API_ANALYTICS.md)** - API تحلیل‌ها
+- **[ML API](backend/README_API_ML.md)** - API یادگیری ماشین
+- **[Alerts API](backend/README_API_ALERTS.md)** - API هشدارها
+
+## 💻 توسعه
+
+### راه‌اندازی محیط توسعه
+
+```bash
+# Install dependencies
+npm run install:all
+
+# Start development servers
+npm run dev
+
+# Backend will run on http://localhost:8000
+# Frontend will run on http://localhost:3000
+```
+
+### دستورات مفید
+
+```bash
+# Development
+npm run dev              # Start all services
+npm run dev:frontend     # Start frontend only
+npm run dev:backend      # Start backend only
+
+# Build
+npm run build            # Build all projects
+npm run build:frontend   # Build frontend
+npm run build:backend    # Build backend
+
+# Testing
+npm run test             # Run all tests
+npm run test:frontend    # Run frontend tests
+npm run test:backend     # Run backend tests
+
+# Linting
+npm run lint             # Run all linters
+npm run lint:frontend    # Lint frontend
+npm run lint:backend     # Lint backend
+
+# Docker
+npm run docker:build     # Build Docker images
+npm run docker:up        # Start Docker containers
+npm run docker:down      # Stop Docker containers
+```
+
+## 🧪 تست
+
+### Backend Tests
+
+```bash
+cd backend
+pytest                    # Run all tests
+pytest --cov=app         # Run with coverage
+pytest tests/test_auth.py # Run specific test file
+```
+
+### Frontend Tests
+
+```bash
+cd frontend
+npm test                  # Run all tests
+npm test -- --coverage   # Run with coverage
+npm test -- --watch      # Watch mode
+```
+
+برای اطلاعات بیشتر، به [Testing Documentation](backend/README_TESTING.md) مراجعه کنید.
+
+## 🚢 استقرار
+
+### Docker Deployment
+
+```bash
+# Build and start
+docker-compose up -d
+
+# View logs
+docker-compose logs -f
+
+# Stop
+docker-compose down
+```
+
+### Production Deployment
+
+برای راهنمای کامل استقرار در production، به [Deployment Guide](docs/DEPLOYMENT.md) مراجعه کنید.
+
+## 🤝 مشارکت
+
+ما از مشارکت شما استقبال می‌کنیم! لطفاً به [Contributing Guide](docs/CONTRIBUTING.md) مراجعه کنید.
+
+### فرآیند مشارکت
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+## 📊 تکنولوژی‌ها
+
+### Frontend
+- **Next.js 14** - React framework
+- **TypeScript** - Type safety
+- **Tailwind CSS** - Styling
+- **Recharts** - Data visualization
+- **React Query** - Data fetching
+- **Leaflet** - Maps
+
+### Backend
+- **FastAPI** - Python web framework
+- **SQLAlchemy** - ORM
+- **TimescaleDB** - Time-series database
+- **Redis** - Caching
+- **Kafka** - Message streaming
+- **Pydantic** - Data validation
+
+### ML/AI
+- **Scikit-learn** - Machine learning
+- **TensorFlow** - Deep learning
+- **XGBoost** - Gradient boosting
+- **MLflow** - ML lifecycle management
+
+### Infrastructure
+- **Docker** - Containerization
+- **Prometheus** - Metrics collection
+- **Grafana** - Visualization
+- **GitHub Actions** - CI/CD
+
+## 📝 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 👥 Authors
+
+- **AI Systems Architect** - Initial work
+
+## 🙏 Acknowledgments
+
+- TimescaleDB team for excellent time-series database
+- FastAPI team for the amazing framework
+- Next.js team for the powerful React framework
+
+## 📞 Support
+
+برای پشتیبانی و سوالات:
+- **Issues**: [GitHub Issues](https://github.com/your-repo/issues)
+- **Documentation**: [Full Documentation](docs/)
+- **Email**: support@example.com
 
 ---
 
-## **Table of Contents**
-1. Introduction
-2. Overall Description
-3. System Architecture
-4. Specific Requirements
-5. Data Processing Diagrams
-6. External Interfaces
-7. Appendices
-
----
-
-## **1. Introduction**
-
-### **1.1 Purpose**
-This document specifies requirements for an AI-powered Artificial Lift Management Dashboard that enables real-time monitoring, predictive analytics, and data-driven decision making for oil and gas artificial lift operations.
-
-### **1.2 Scope**
-The "IntelliLift AI Dashboard" is a comprehensive cloud-based solution that provides:
-- Real-time sensor data ingestion and processing
-- Historical and synthetic data management
-- Machine learning and AI analytics
-- Multi-source data integration
-- Advanced visualization and reporting
-
-### **1.3 Definitions**
-- **ALS:** Artificial Lift System
-- **ESP:** Electrical Submersible Pump
-- **KPI:** Key Performance Indicator
-- **ETL:** Extract, Transform, Load
-- **MLOps:** Machine Learning Operations
-
-## **2. Overall Description**
-
-### **2.1 Product Perspective**
-```mermaid
-graph TB
-    A[IntelliLift AI Dashboard] --> B[Cloud Infrastructure]
-    A --> C[ML/AI Models]
-    A --> D[Real-time Processing]
-    A --> E[Data Storage]
-    
-    B --> F[Security Layer]
-    C --> G[Anomaly Detection]
-    C --> H[Predictive Maintenance]
-    C --> I[Optimization Engine]
-    
-    D --> J[Stream Processing]
-    E --> K[Time Series DB]
-    E --> L[Data Lake]
-```
-
-### **2.2 User Roles**
-| Role | Responsibilities | Access Level |
-|------|-----------------|--------------|
-| Field Operator | Real-time monitoring, alerts | Basic |
-| Production Engineer | Analytics, optimization | Advanced |
-| Data Scientist | Model development, analysis | Developer |
-| Operations Manager | Reporting, KPIs | Management |
-
-## **3. System Architecture**
-
-### **3.1 High-Level System Architecture**
-```mermaid
-graph TB
-    subgraph "Data Sources"
-        A1[Field Sensors]
-        A2[SCADA Systems]
-        A3[Data Historians]
-        A4[External APIs]
-    end
-    
-    subgraph "Ingestion Layer"
-        B1[IoT Gateway]
-        B2[Message Broker]
-        B3[API Gateway]
-        B4[Data Collector]
-    end
-    
-    subgraph "Processing Layer"
-        C1[Stream Processor]
-        C2[ETL Pipeline]
-        C3[ML Pipeline]
-        C4[Data Validator]
-    end
-    
-    subgraph "Storage Layer"
-        D1[Time Series DB]
-        D2[Data Lake]
-        D3[ML Feature Store]
-        D4[Metadata Repository]
-    end
-    
-    subgraph "Application Layer"
-        E1[Dashboard UI]
-        E2[Analytics Engine]
-        E3[Alert System]
-        E4[Report Generator]
-    end
-    
-    A1 --> B1
-    A2 --> B2
-    A3 --> B3
-    A4 --> B4
-    
-    B1 --> C1
-    B2 --> C1
-    B3 --> C2
-    B4 --> C2
-    
-    C1 --> D1
-    C2 --> D2
-    C3 --> D3
-    C4 --> D4
-    
-    D1 --> E1
-    D2 --> E2
-    D3 --> E3
-    D4 --> E4
-```
-
-### **3.2 Data Flow Diagram**
-```mermaid
-flowchart TD
-    subgraph "Data Acquisition"
-        A[Sensor Data<br/>1-second intervals]
-        B[Historical Data<br/>6 months]
-        C[Synthetic Data<br/>Testing]
-        D[External Sources<br/>Kaggle, UCI, etc.]
-    end
-    
-    subgraph "Data Processing Pipeline"
-        E[Data Ingestion]
-        F[Validation & Cleaning]
-        G[Feature Engineering]
-        H[Normalization]
-        I[Anomaly Detection]
-    end
-    
-    subgraph "Storage"
-        J[Raw Data Lake]
-        K[Processed Data<br/>Time Series DB]
-        L[Features Store]
-    end
-    
-    subgraph "Analytics & ML"
-        M[Real-time Analytics]
-        N[Batch Processing]
-        O[ML Model Serving]
-        P[Model Training]
-    end
-    
-    subgraph "Presentation"
-        Q[Dashboard Visualization]
-        R[Alerts & Notifications]
-        S[Reports & Exports]
-        T[API Endpoints]
-    end
-    
-    A --> E
-    B --> E
-    C --> E
-    D --> E
-    
-    E --> F
-    F --> G
-    G --> H
-    H --> I
-    
-    I --> J
-    I --> K
-    G --> L
-    
-    K --> M
-    L --> N
-    K --> O
-    L --> P
-    
-    M --> Q
-    O --> R
-    N --> S
-    O --> T
-```
-
-## **4. Specific Requirements**
-
-### **4.1 Functional Requirements**
-
-#### **FR1: Data Ingestion**
-- **FR1.1:** Support MQTT, OPC-UA, REST APIs for real-time data
-- **FR1.2:** Handle 1-second interval data from 500+ sensors
-- **FR1.3:** Ingest 6 months of historical data
-- **FR1.4:** Support batch data uploads
-
-#### **FR2: Data Processing**
-- **FR2.1:** Real-time data validation and cleaning
-- **FR2.2:** Automated feature engineering
-- **FR2.3:** Data normalization and transformation
-- **FR2.4:** Outlier detection and handling
-
-#### **FR3: Analytics & ML**
-- **FR3.1:** Real-time anomaly detection
-- **FR3.2:** Predictive maintenance models
-- **FR3.3:** Equipment failure prediction
-- **FR3.4:** Production optimization recommendations
-
-#### **FR4: Visualization**
-- **FR4.1:** Real-time dashboard with <3s latency
-- **FR4.2:** Historical trend analysis
-- **FR4.3:** Geographic well mapping
-- **FR4.4:** Customizable KPI widgets
-
-### **4.2 Non-Functional Requirements**
-
-#### **Performance**
-- Data ingestion latency: <2 seconds
-- Dashboard refresh: <3 seconds
-- Query response: <5 seconds
-- System availability: 99.9%
-
-#### **Scalability**
-- Support 10,000+ sensors
-- Handle 1TB+ daily data
-- Concurrent users: 500+
-
-#### **Security**
-- TLS 1.3 encryption
-- Role-based access control
-- Audit logging
-- GDPR compliance
-
-## **5. Data Processing Diagrams**
-
-### **5.1 Data Processing Pipeline Architecture**
-```mermaid
-flowchart LR
-    subgraph "Data Ingestion Layer"
-        A1[MQTT Broker]
-        A2[OPC-UA Client]
-        A3[REST API]
-        A4[File Ingestion]
-    end
-    
-    subgraph "Stream Processing"
-        B1[Apache Kafka]
-        B2[Stream Validator]
-        B3[Data Enricher]
-        B4[Quality Check]
-    end
-    
-    subgraph "Batch Processing"
-        C1[Spark Engine]
-        C2[Feature Calculator]
-        C3[Aggregator]
-        C4[Data Transformer]
-    end
-    
-    subgraph "ML Pipeline"
-        D1[Model Trainer]
-        D2[Feature Store]
-        D3[Model Registry]
-        D4[Prediction Service]
-    end
-    
-    subgraph "Storage Layer"
-        E1[TimescaleDB]
-        E2[Amazon S3]
-        E3[Redis Cache]
-        E4[Elasticsearch]
-    end
-    
-    A1 --> B1
-    A2 --> B1
-    A3 --> B1
-    A4 --> B1
-    
-    B1 --> B2
-    B2 --> B3
-    B3 --> B4
-    B4 --> C1
-    
-    C1 --> C2
-    C2 --> C3
-    C3 --> C4
-    C4 --> D1
-    
-    D1 --> D2
-    D2 --> D3
-    D3 --> D4
-    
-    B4 --> E1
-    C4 --> E2
-    D4 --> E3
-    E1 --> E4
-```
-
-### **5.2 Machine Learning Pipeline**
-```mermaid
-flowchart TD
-    subgraph "Data Preparation"
-        A[Raw Data Collection]
-        B[Data Cleaning]
-        C[Feature Engineering]
-        D[Data Labeling]
-    end
-    
-    subgraph "Model Development"
-        E[Model Selection]
-        F[Hyperparameter Tuning]
-        G[Cross-Validation]
-        H[Model Training]
-    end
-    
-    subgraph "Model Deployment"
-        I[Model Validation]
-        J[A/B Testing]
-        K[Model Serving]
-        L[Performance Monitoring]
-    end
-    
-    subgraph "Production Inference"
-        M[Real-time Prediction]
-        N[Batch Prediction]
-        O[Anomaly Detection]
-        P[Recommendation Engine]
-    end
-    
-    A --> B
-    B --> C
-    C --> D
-    D --> E
-    
-    E --> F
-    F --> G
-    G --> H
-    H --> I
-    
-    I --> J
-    J --> K
-    K --> L
-    L --> M
-    
-    M --> N
-    N --> O
-    O --> P
-```
-
-### **5.3 Data Validation Flowchart**
-```mermaid
-flowchart TD
-    Start[Data Received] --> ValidateSchema
-    ValidateSchema{Schema Valid?}
-    
-    ValidateSchema -- Yes --> CheckCompleteness
-    ValidateSchema -- No --> LogError[Log Schema Error]
-    
-    CheckCompleteness{Data Complete?}
-    CheckCompleteness -- Yes --> ValidateRange
-    CheckCompleteness -- No --> HandleMissing[Impute Missing Values]
-    
-    ValidateRange{Values in Range?}
-    ValidateRange -- Yes --> CheckQuality
-    ValidateRange -- No --> FlagOutlier[Flag Outliers]
-    
-    CheckQuality{Quality Metrics OK?}
-    CheckQuality -- Yes --> StoreData[Store Valid Data]
-    CheckQuality -- No --> TriggerAlert[Send Data Quality Alert]
-    
-    HandleMissing --> ValidateRange
-    FlagOutlier --> CheckQuality
-    LogError --> End[End Process]
-    StoreData --> End
-    TriggerAlert --> End
-```
-
-## **6. Implementation Scripts**
-
-### **6.1 Enhanced Synthetic Data Generator**
-```python
-import pandas as pd
-import numpy as np
-from datetime import datetime, timedelta
-import json
-
-class SyntheticALSDataGenerator:
-    def __init__(self):
-        self.sensor_specs = {
-            'motor_temperature': {'min': 65, 'max': 120, 'unit': 'C'},
-            'intake_pressure': {'min': 450, 'max': 600, 'unit': 'psi'},
-            'discharge_pressure': {'min': 800, 'max': 1200, 'unit': 'psi'},
-            'vibration': {'min': 0.5, 'max': 5.0, 'unit': 'g'},
-            'current': {'min': 30, 'max': 80, 'unit': 'A'},
-            'flow_rate': {'min': 1500, 'max': 2500, 'unit': 'bpd'}
-        }
-    
-    def generate_well_data(self, well_id, start_date, days=180):
-        """Generate 6 months of synthetic sensor data for a well"""
-        total_seconds = days * 24 * 60 * 60
-        timestamps = pd.date_range(start=start_date, periods=total_seconds, freq='1S')
-        
-        data = {
-            'timestamp': timestamps,
-            'well_id': well_id,
-            'motor_temperature': self._generate_temperature_data(total_seconds, well_id),
-            'intake_pressure': self._generate_pressure_data(total_seconds, 'intake'),
-            'discharge_pressure': self._generate_pressure_data(total_seconds, 'discharge'),
-            'vibration': self._generate_vibration_data(total_seconds, well_id),
-            'current': self._generate_current_data(total_seconds),
-            'flow_rate': self._generate_flow_data(total_seconds, well_id),
-            'equipment_status': self._generate_status_data(total_seconds, well_id)
-        }
-        
-        return pd.DataFrame(data)
-    
-    def _generate_temperature_data(self, n_samples, well_id):
-        base_temp = 75 + np.random.normal(0, 2, n_samples)
-        # Simulate gradual failure for specific wells
-        if well_id in ['Well_08', 'Well_15']:
-            failure_start = n_samples - (30 * 24 * 60 * 60)  # Last 30 days
-            ramp = np.linspace(0, 1, n_samples - failure_start)
-            failure_signal = np.concatenate([np.zeros(failure_start), ramp])
-            base_temp += failure_signal * 25
-        return np.clip(base_temp, 65, 120)
-
-# Usage example
-if __name__ == "__main__":
-    generator = SyntheticALSDataGenerator()
-    start_date = datetime.now() - timedelta(days=180)
-    
-    all_data = []
-    for i in range(1, 11):
-        well_data = generator.generate_well_data(f"Well_{i:02d}", start_date)
-        all_data.append(well_data)
-    
-    final_df = pd.concat(all_data, ignore_index=True)
-    final_df.to_parquet('synthetic_als_data_6months.parquet', index=False)
-```
-
-### **6.2 Advanced Data Downloader**
-```python
-import os
-import requests
-import pandas as pd
-from kaggle.api.kaggle_api_extended import KaggleApi
-import boto3
-from botocore import UNSIGNED
-from botocore.config import Config
-
-class AdvancedDataDownloader:
-    def __init__(self, config_path='./config'):
-        self.config_path = config_path
-        os.makedirs(config_path, exist_ok=True)
-        self.setup_logging()
-    
-    def download_from_multiple_sources(self, search_terms):
-        """Download data from all configured sources"""
-        results = {}
-        
-        for term in search_terms:
-            print(f"Searching for: {term}")
-            
-            # Kaggle
-            results['kaggle'] = self.download_kaggle_datasets(term)
-            
-            # UCI Repository
-            results['uci'] = self.download_uci_datasets(term)
-            
-            # AWS Open Data
-            results['aws'] = self.download_aws_datasets(term)
-            
-            # data.gov
-            results['data_gov'] = self.download_datagov_datasets(term)
-        
-        return results
-    
-    def download_kaggle_datasets(self, search_term):
-        """Download from Kaggle with advanced search"""
-        try:
-            api = KaggleApi()
-            api.authenticate()
-            
-            datasets = api.dataset_list(search=search_term, file_type='csv')
-            downloaded_files = []
-            
-            for dataset in datasets[:3]:  # Limit to top 3 results
-                print(f"Downloading {dataset.ref}")
-                api.dataset_download_files(
-                    dataset.ref, 
-                    path=f"{self.config_path}/kaggle", 
-                    unzip=True
-                )
-                downloaded_files.append(dataset.ref)
-            
-            return downloaded_files
-        except Exception as e:
-            print(f"Kaggle error: {e}")
-            return []
-
-# Additional implementation for other data sources...
-```
-
-## **7. Database Schema Design**
-
-### **7.1 Time Series Data Schema**
-```sql
--- Sensor readings table
-CREATE TABLE sensor_readings (
-    reading_id UUID PRIMARY KEY,
-    well_id VARCHAR(50) NOT NULL,
-    sensor_type VARCHAR(50) NOT NULL,
-    sensor_value DOUBLE PRECISION NOT NULL,
-    measurement_unit VARCHAR(20),
-    data_quality INTEGER,
-    timestamp TIMESTAMPTZ NOT NULL,
-    created_at TIMESTAMPTZ DEFAULT NOW()
-);
-
--- Well metadata table
-CREATE TABLE well_metadata (
-    well_id VARCHAR(50) PRIMARY KEY,
-    well_name VARCHAR(100),
-    location GEOGRAPHY(POINT),
-    equipment_type VARCHAR(50),
-    installation_date DATE,
-    status VARCHAR(20),
-    last_maintenance DATE
-);
-
--- ML predictions table
-CREATE TABLE ml_predictions (
-    prediction_id UUID PRIMARY KEY,
-    well_id VARCHAR(50) NOT NULL,
-    model_type VARCHAR(50) NOT NULL,
-    prediction_value DOUBLE PRECISION,
-    confidence_score DOUBLE PRECISION,
-    prediction_type VARCHAR(50),
-    timestamp TIMESTAMPTZ NOT NULL
-);
-
--- Create hypertable for time-series data
-SELECT create_hypertable('sensor_readings', 'timestamp');
-```
-
-## **8. Deployment Architecture**
-
-### **8.1 Cloud Deployment Diagram**
-```mermaid
-graph TB
-    subgraph "Cloud Provider AWS/Azure"
-        A[Load Balancer]
-        B[API Gateway]
-        
-        subgraph "Application Tier"
-            C[Web Server]
-            D[API Services]
-            E[Stream Processor]
-        end
-        
-        subgraph "Data Tier"
-            F[TimescaleDB]
-            G[S3 Data Lake]
-            H[Redis Cache]
-            I[Elasticsearch]
-        end
-        
-        subgraph "ML Tier"
-            J[SageMaker]
-            K[Model Endpoints]
-            L[Feature Store]
-        end
-        
-        subgraph "Monitoring"
-            M[CloudWatch]
-            N[Prometheus]
-            O[Grafana]
-        end
-    end
-    
-    A --> C
-    B --> D
-    C --> D
-    D --> E
-    
-    E --> F
-    E --> G
-    D --> H
-    D --> I
-    
-    E --> J
-    J --> K
-    K --> L
-    
-    C --> M
-    D --> N
-    E --> O
-```
-
-This comprehensive SRS document provides complete specifications for developing the AI-powered Artificial Lift Management Dashboard with all necessary diagrams and technical details.
+**Made with ❤️ for the Oil & Gas Industry**
