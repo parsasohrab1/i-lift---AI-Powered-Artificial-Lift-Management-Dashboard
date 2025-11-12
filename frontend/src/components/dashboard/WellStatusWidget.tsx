@@ -2,6 +2,7 @@
 
 import { useQuery } from 'react-query'
 import { apiClient } from '@/lib/api'
+import * as mockData from '@/lib/mockData'
 import Link from 'next/link'
 import { CheckCircle, XCircle, AlertCircle, ArrowRight } from 'lucide-react'
 
@@ -9,8 +10,13 @@ export default function WellStatusWidget() {
   const { data: wells, isLoading } = useQuery(
     'wells-status',
     async () => {
-      const response = await apiClient.get('/wells/')
-      return response.data
+      try {
+        const response = await apiClient.get('/wells/')
+        return response.data
+      } catch (error) {
+        console.warn('Using mock wells data')
+        return mockData.generateWells()
+      }
     },
     {
       refetchInterval: 60000,

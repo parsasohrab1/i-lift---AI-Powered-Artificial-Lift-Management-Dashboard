@@ -4,6 +4,7 @@ import { useState } from 'react'
 import DashboardLayout from '@/components/layouts/DashboardLayout'
 import { useQuery } from 'react-query'
 import { apiClient } from '@/lib/api'
+import * as mockData from '@/lib/mockData'
 import WellsList from '@/components/wells/WellsList'
 import WellMap from '@/components/wells/WellMap'
 import { Database, MapPin, Activity } from 'lucide-react'
@@ -15,8 +16,14 @@ export default function WellsPage() {
   const { data: wells, isLoading } = useQuery(
     'wells',
     async () => {
-      const response = await apiClient.get('/wells/')
-      return response.data
+      try {
+        const response = await apiClient.get('/wells/')
+        return response.data
+      } catch (error) {
+        console.warn('Using mock wells data')
+        const mockWells = require('@/lib/mockData').generateWells()
+        return mockWells
+      }
     },
     {
       refetchInterval: 60000, // Refresh every minute

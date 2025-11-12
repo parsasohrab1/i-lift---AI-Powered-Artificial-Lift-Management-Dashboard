@@ -2,14 +2,20 @@
 
 import { useQuery } from 'react-query'
 import { apiClient } from '@/lib/api'
+import * as mockData from '@/lib/mockData'
 import { Activity, CheckCircle, AlertTriangle, XCircle } from 'lucide-react'
 
 export default function SensorStatusWidget() {
   const { data: sensors, isLoading } = useQuery(
     'sensor-status',
     async () => {
-      const response = await apiClient.get('/sensors/realtime')
-      return response.data
+      try {
+        const response = await apiClient.get('/sensors/realtime')
+        return response.data
+      } catch (error) {
+        console.warn('Using mock sensor status data')
+        return { data: mockData.generateRealtimeSensorData(), timestamp: new Date().toISOString() }
+      }
     },
     {
       refetchInterval: 10000,
@@ -42,11 +48,12 @@ export default function SensorStatusWidget() {
   if (sensors?.data) {
     Object.values(sensors.data).forEach((wellSensors: any) => {
       Object.values(wellSensors).forEach((sensor: any) => {
-        if (!sensor || !sensor.quality) {
+        const quality = sensor.data_quality || sensor.quality || 0
+        if (!sensor || quality === 0) {
           sensorCounts.offline++
-        } else if (sensor.quality >= 80) {
+        } else if (quality >= 80) {
           sensorCounts.healthy++
-        } else if (sensor.quality >= 60) {
+        } else if (quality >= 60) {
           sensorCounts.warning++
         } else {
           sensorCounts.critical++

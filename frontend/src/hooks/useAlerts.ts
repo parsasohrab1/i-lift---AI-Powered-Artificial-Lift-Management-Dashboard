@@ -2,6 +2,7 @@
 
 import { useQuery, useMutation, useQueryClient } from 'react-query'
 import { apiClient } from '@/lib/api'
+import * as mockData from '@/lib/mockData'
 import toast from 'react-hot-toast'
 
 interface UseAlertsOptions {
@@ -17,14 +18,23 @@ export function useAlerts(options: UseAlertsOptions = {}) {
   return useQuery(
     ['alerts', wellId, severity, resolved, limit],
     async () => {
-      const params = new URLSearchParams()
-      if (wellId) params.append('well_id', wellId)
-      if (severity) params.append('severity', severity)
-      if (resolved !== undefined) params.append('resolved', resolved.toString())
-      params.append('limit', limit.toString())
+      try {
+        const params = new URLSearchParams()
+        if (wellId) params.append('well_id', wellId)
+        if (severity) params.append('severity', severity)
+        if (resolved !== undefined) params.append('resolved', resolved.toString())
+        params.append('limit', limit.toString())
 
-      const response = await apiClient.get(`/alerts/?${params.toString()}`)
-      return response.data
+        const response = await apiClient.get(`/alerts/?${params.toString()}`)
+        return response.data
+      } catch (error) {
+        console.warn('Using mock alerts data')
+        let alerts = mockData.generateAlerts(limit)
+        if (wellId) alerts = alerts.filter(a => a.well_id === wellId)
+        if (severity) alerts = alerts.filter(a => a.severity === severity)
+        if (resolved !== undefined) alerts = alerts.filter(a => a.resolved === resolved)
+        return { alerts, total: alerts.length }
+      }
     },
     {
       refetchInterval: 10000, // Refresh every 10 seconds

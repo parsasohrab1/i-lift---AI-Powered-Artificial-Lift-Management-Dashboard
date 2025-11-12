@@ -51,25 +51,21 @@ apiClient.interceptors.response.use(
             return apiClient.request(error.config);
           }
         } catch (refreshError) {
-          // Refresh failed, logout
+          // Refresh failed, clear tokens but don't redirect
           localStorage.removeItem('token');
           localStorage.removeItem('refresh_token');
           localStorage.removeItem('user');
-          window.location.href = '/login';
         }
       } else {
         localStorage.removeItem('token');
         localStorage.removeItem('refresh_token');
         localStorage.removeItem('user');
-        window.location.href = '/login';
       }
     }
     
-    // Show error toast for non-401 errors
-    if (error.response?.status !== 401) {
-      const message = (error.response?.data as any)?.detail || 'An error occurred';
-      toast.error(message);
-    }
+    // Show error toast for all errors
+    const message = (error.response?.data as any)?.detail || 'An error occurred';
+    toast.error(message);
     
     return Promise.reject(error);
   }

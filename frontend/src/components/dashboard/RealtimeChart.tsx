@@ -2,6 +2,7 @@
 
 import { useQuery } from 'react-query'
 import { apiClient } from '@/lib/api'
+import * as mockData from '@/lib/mockData'
 import {
   LineChart,
   Line,
@@ -17,8 +18,13 @@ export default function RealtimeChart() {
   const { data, isLoading } = useQuery(
     'realtime-sensor-data',
     async () => {
-      const response = await apiClient.get('/sensors/realtime')
-      return response.data
+      try {
+        const response = await apiClient.get('/sensors/realtime')
+        return response.data
+      } catch (error) {
+        console.warn('Using mock realtime chart data')
+        return { data: mockData.generateRealtimeSensorData(), timestamp: new Date().toISOString() }
+      }
     },
     {
       refetchInterval: 5000, // Refresh every 5 seconds
@@ -42,7 +48,7 @@ export default function RealtimeChart() {
         Object.entries(sensors).map(([sensorType, sensorData]: [string, any]) => ({
           well: wellId,
           sensor: sensorType,
-          value: sensorData.value,
+          value: sensorData.sensor_value || sensorData.value,
           timestamp: new Date(sensorData.timestamp).toLocaleTimeString(),
         }))
       )

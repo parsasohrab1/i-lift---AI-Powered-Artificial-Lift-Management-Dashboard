@@ -2,14 +2,20 @@
 
 import { useQuery } from 'react-query'
 import { apiClient } from '@/lib/api'
+import * as mockData from '@/lib/mockData'
 import { Activity, Thermometer, Gauge, Zap } from 'lucide-react'
 
 export default function RealtimeMetrics() {
   const { data: realtimeData, isLoading } = useQuery(
     'realtime-metrics',
     async () => {
-      const response = await apiClient.get('/sensors/realtime')
-      return response.data
+      try {
+        const response = await apiClient.get('/sensors/realtime')
+        return response.data
+      } catch (error) {
+        console.warn('Using mock realtime data')
+        return { data: mockData.generateRealtimeSensorData(), timestamp: new Date().toISOString() }
+      }
     },
     {
       refetchInterval: 5000, // Refresh every 5 seconds

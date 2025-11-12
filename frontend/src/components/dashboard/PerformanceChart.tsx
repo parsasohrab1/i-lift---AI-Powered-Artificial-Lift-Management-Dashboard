@@ -2,6 +2,7 @@
 
 import { useQuery } from 'react-query'
 import { apiClient } from '@/lib/api'
+import * as mockData from '@/lib/mockData'
 import {
   LineChart,
   Line,
@@ -20,18 +21,36 @@ interface PerformanceChartProps {
   days?: number
 }
 
-export default function PerformanceChart({ wellId, days = 7 }: PerformanceChartProps) {
+export default function PerformanceChart({ wellId = 'Well_01', days = 7 }: PerformanceChartProps) {
   const { data: trends, isLoading } = useQuery(
     ['performance-chart', wellId, days],
     async () => {
-      if (!wellId) return null
-      const response = await apiClient.get(
-        `/analytics/trends?well_id=${wellId}&metric=flow&days=${days}`
-      )
-      return response.data
+      try {
+        const response = await apiClient.get(
+          `/analytics/trends?well_id=${wellId}&metric=flow_rate&days=${days}`
+        )
+        return response.data
+      } catch (error) {
+        console.warn('Using mock performance chart data')
+        const timeSeries = mockData.generateTimeSeriesData('flow_rate', days * 24, 60)
+        return {
+          metric: 'flow_rate',
+          well_id: wellId,
+          data_points: timeSeries.map((point, index) => ({
+            date: point.timestamp,
+            avg: point.value,
+            min: point.value * 0.9,
+            max: point.value * 1.1,
+          })),
+          trend: {
+            direction: Math.random() > 0.5 ? 'increasing' : 'decreasing',
+            strength: 0.6 + Math.random() * 0.3,
+          },
+        }
+      }
     },
     {
-      enabled: !!wellId,
+      enabled: true,
       refetchInterval: 60000,
     }
   )

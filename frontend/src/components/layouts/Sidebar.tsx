@@ -13,7 +13,6 @@ import {
   X,
   ChevronRight,
 } from 'lucide-react'
-import { useAuth } from '@/hooks/useAuth'
 
 interface SidebarProps {
   open: boolean
@@ -32,7 +31,6 @@ const navigation = [
 
 export default function Sidebar({ open, onClose }: SidebarProps) {
   const pathname = usePathname()
-  const { user } = useAuth()
 
   return (
     <>
@@ -91,29 +89,6 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
               )
             })}
           </nav>
-
-          {/* User info */}
-          {user && (
-            <div className="p-4 border-t border-gray-200">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <div className="h-10 w-10 rounded-full bg-primary-100 flex items-center justify-center">
-                    <span className="text-primary-600 font-medium">
-                      {user.username.charAt(0).toUpperCase()}
-                    </span>
-                  </div>
-                </div>
-                <div className="ml-3 flex-1">
-                  <p className="text-sm font-medium text-gray-900">
-                    {user.full_name || user.username}
-                  </p>
-                  <p className="text-xs text-gray-500 capitalize">
-                    {user.role.replace('_', ' ')}
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
         </div>
       </div>
     </>

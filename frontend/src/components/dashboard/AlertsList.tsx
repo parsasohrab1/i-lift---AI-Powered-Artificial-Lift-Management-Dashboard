@@ -2,6 +2,7 @@
 
 import { useQuery } from 'react-query'
 import { apiClient } from '@/lib/api'
+import * as mockData from '@/lib/mockData'
 import { AlertTriangle, X } from 'lucide-react'
 import Link from 'next/link'
 
@@ -9,8 +10,13 @@ export default function AlertsList() {
   const { data: alerts, isLoading } = useQuery(
     'critical-alerts',
     async () => {
-      const response = await apiClient.get('/alerts/critical?limit=5')
-      return response.data
+      try {
+        const response = await apiClient.get('/alerts/critical?limit=5')
+        return Array.isArray(response.data) ? response.data : response.data.alerts || []
+      } catch (error) {
+        console.warn('Using mock alerts data')
+        return mockData.generateAlerts(10).filter(a => a.severity === 'critical' || a.severity === 'high')
+      }
     },
     {
       refetchInterval: 10000, // Refresh every 10 seconds
@@ -69,7 +75,7 @@ export default function AlertsList() {
                   <p className="text-sm font-medium">{alert.well_id}</p>
                   <p className="text-xs mt-1">{alert.message}</p>
                   <p className="text-xs mt-1 opacity-75">
-                    {new Date(alert.created_at).toLocaleString()}
+                    {new Date(alert.created_at || alert.timestamp).toLocaleString()}
                   </p>
                 </div>
               </div>

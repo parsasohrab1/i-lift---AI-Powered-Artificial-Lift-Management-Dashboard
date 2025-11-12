@@ -2,6 +2,7 @@
 
 import { useQuery } from 'react-query'
 import { apiClient } from '@/lib/api'
+import * as mockData from '@/lib/mockData'
 import { AlertTriangle, CheckCircle, Activity, TrendingUp } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
 
@@ -10,8 +11,13 @@ export default function ActivityFeed() {
   const { data: alerts } = useQuery(
     'recent-alerts',
     async () => {
-      const response = await apiClient.get('/alerts/?limit=10&resolved=false')
-      return response.data
+      try {
+        const response = await apiClient.get('/alerts/?limit=10&resolved=false')
+        return Array.isArray(response.data) ? response.data : response.data.alerts || []
+      } catch (error) {
+        console.warn('Using mock alerts data')
+        return mockData.generateAlerts(10).filter(a => !a.resolved)
+      }
     },
     {
       refetchInterval: 30000,
@@ -22,8 +28,13 @@ export default function ActivityFeed() {
   const { data: predictions } = useQuery(
     'recent-predictions',
     async () => {
-      const response = await apiClient.get('/ml/predictions/latest?limit=5')
-      return response.data
+      try {
+        const response = await apiClient.get('/ml/predictions/latest?limit=5')
+        return Array.isArray(response.data) ? response.data : []
+      } catch (error) {
+        console.warn('Using mock predictions data')
+        return mockData.generateMLPredictions()
+      }
     },
     {
       refetchInterval: 60000,
@@ -33,41 +44,39 @@ export default function ActivityFeed() {
   const activities: any[] = []
 
   // Add alerts as activities
-  if (alerts?.alerts) {
-    alerts.alerts.forEach((alert: any) => {
-      activities.push({
-        id: alert.alert_id,
-        type: 'alert',
-        severity: alert.severity,
-        title: alert.message,
-        wellId: alert.well_id,
-        timestamp: alert.created_at,
-        icon: AlertTriangle,
-        color:
-          alert.severity === 'critical'
-            ? 'text-red-600'
-            : alert.severity === 'high'
-            ? 'text-orange-600'
-            : 'text-yellow-600',
-      })
+  const alertsList = Array.isArray(alerts) ? alerts : alerts?.alerts || []
+  alertsList.forEach((alert: any) => {
+    activities.push({
+      id: alert.alert_id,
+      type: 'alert',
+      severity: alert.severity,
+      title: alert.message,
+      wellId: alert.well_id,
+      timestamp: alert.created_at || alert.timestamp,
+      icon: AlertTriangle,
+      color:
+        alert.severity === 'critical'
+          ? 'text-red-600'
+          : alert.severity === 'high'
+          ? 'text-orange-600'
+          : 'text-yellow-600',
     })
-  }
+  })
 
   // Add predictions as activities
-  if (predictions) {
-    predictions.forEach((prediction: any) => {
-      activities.push({
-        id: prediction.prediction_id,
-        type: 'prediction',
-        title: `${prediction.model_type.replace('_', ' ')} prediction`,
-        wellId: prediction.well_id,
-        timestamp: prediction.timestamp,
-        icon: TrendingUp,
-        color: 'text-blue-600',
-        value: prediction.prediction_value,
-      })
+  const predictionsList = Array.isArray(predictions) ? predictions : []
+  predictionsList.forEach((prediction: any) => {
+    activities.push({
+      id: prediction.prediction_id,
+      type: 'prediction',
+      title: `${(prediction.prediction_type || prediction.model_type || 'failure').replace('_', ' ')} prediction`,
+      wellId: prediction.well_id,
+      timestamp: prediction.timestamp,
+      icon: TrendingUp,
+      color: 'text-blue-600',
+      value: prediction.predicted_failure_probability || prediction.prediction_value,
     })
-  }
+  })
 
   // Sort by timestamp (newest first)
   activities.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())

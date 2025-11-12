@@ -2,6 +2,7 @@
 
 import { useQuery } from 'react-query'
 import { apiClient } from '@/lib/api'
+import * as mockData from '@/lib/mockData'
 import StatCard from '../ui/StatCard'
 import { Activity, TrendingUp, AlertTriangle, Database } from 'lucide-react'
 
@@ -13,9 +14,14 @@ export default function KPIWidget({ wellId }: KPIWidgetProps) {
   const { data: kpis, isLoading } = useQuery(
     ['kpis', wellId],
     async () => {
-      const params = wellId ? `?well_id=${wellId}` : ''
-      const response = await apiClient.get(`/analytics/kpi${params}`)
-      return response.data
+      try {
+        const params = wellId ? `?well_id=${wellId}` : ''
+        const response = await apiClient.get(`/analytics/kpi${params}`)
+        return { kpis: response.data }
+      } catch (error) {
+        console.warn('Using mock KPI data')
+        return { kpis: mockData.generateKPIs() }
+      }
     },
     {
       refetchInterval: 60000, // Refresh every minute
