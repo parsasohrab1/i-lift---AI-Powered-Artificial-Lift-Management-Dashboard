@@ -347,3 +347,8 @@ For support and questions:
 ---
 
 **Made with ❤️ for the Oil & Gas Industry**
+
+
+## Articles
+
+See [docs/ARTICLE.md](docs/ARTICLE.md) for the article prepared from this product (in preparation) and [docs/TRL.md](docs/TRL.md) for its TRL 4 evidence.
